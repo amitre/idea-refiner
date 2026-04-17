@@ -1,8 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic();
-
 const SYSTEM_PROMPT = `You are a sharp, honest idea advisor. When given an idea, respond with a structured mini-plan in exactly this format:
 
 **Summary:** One sentence that captures the core of the idea.
@@ -23,6 +21,7 @@ Keep every section tight. No filler, no hype. Be direct and useful.`;
 
 export async function POST(request: NextRequest) {
   try {
+    const client = new Anthropic();
     const { idea } = await request.json();
 
     if (!idea || typeof idea !== "string" || !idea.trim()) {
@@ -56,9 +55,7 @@ export async function POST(request: NextRequest) {
         { status: error.status ?? 500 }
       );
     }
-    return NextResponse.json(
-      { error: "Failed to process your idea" },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : "Failed to process your idea";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
